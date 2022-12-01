@@ -1,4 +1,4 @@
-package GameObjects.Walls;
+package GameObjects;
 
 import java.awt.Image;
 import java.awt.Rectangle;

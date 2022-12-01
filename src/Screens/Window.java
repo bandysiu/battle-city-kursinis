@@ -22,7 +22,6 @@ public class Window extends JFrame {
 
     public Window() {
         initializeWindow();
-//        setLocationRelativeTo(null);
     }
 
     private void initializeWindow() {

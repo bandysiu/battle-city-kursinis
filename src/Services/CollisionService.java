@@ -1,6 +1,7 @@
 package Services;
 
-import GameObjects.Walls.TileType;
+import GameObjects.Tanks.Bullet;
+import GameObjects.Tanks.PlayerTank;
 import GameObjects.Walls.Tiles;
 
 import java.awt.*;
@@ -13,13 +14,27 @@ public class CollisionService {
         CollisionService.tiles = tiles;
     }
 
-    public static boolean checkTankCollision(Rectangle tank) {
+    public static boolean checkPlayerTankWallCollision(PlayerTank tank) {
+
+        Rectangle tankRectangle = new Rectangle(tank.getX() + tank.getDirX(), tank.getY() + tank.getDirY(), 32, 32);
+
         for (Tiles tile : tiles) {
 
-            if (tank.intersects(tile.getBounds())) {
+            if (tankRectangle.intersects(tile.getBounds())) {
                 return true;
             }
         }
         return false;
+    }
+
+    public static void checkPlayerBulletWallCollision(PlayerTank tank) {
+        for (Tiles tile : tiles) {
+            for(Bullet bullet: tank.getBullets()){
+                Rectangle bulletRectangle = new Rectangle(bullet.getX(), bullet.getY(), 8, 8);
+                if (bulletRectangle.intersects(tile.getBounds())) {
+                    bullet.setVisible(false);
+                }
+            }
+        }
     }
 }

@@ -23,12 +23,12 @@ public class StartScreen extends JPanel implements ActionListener, KeyListener {
     public void paintComponent(Graphics graphics) {
         super.paintComponent(graphics);
         graphics.setColor(Color.BLACK);
-        graphics.drawString("Press SPACE to start the game", 240, 320);
+        graphics.drawString("Press ENTER to start the game", 240, 320);
     }
 
     @Override
-    public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == e.VK_SPACE) {
+    public void keyPressed(KeyEvent event) {
+        if (event.getKeyCode() == KeyEvent.VK_ENTER) {
             loadBattleground();
         }
     }
@@ -44,14 +44,14 @@ public class StartScreen extends JPanel implements ActionListener, KeyListener {
     }
 
     @Override
-    public void keyReleased(KeyEvent e) {
+    public void keyReleased(KeyEvent event) {
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent event) {
     }
 
     @Override
-    public void keyTyped(KeyEvent e) {
+    public void keyTyped(KeyEvent event) {
     }
 }

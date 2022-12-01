@@ -1,5 +1,7 @@
 package GameObjects.Walls;
 
+import GameObjects.Sprite;
+
 public class Tiles extends Sprite {
 
     private int type;

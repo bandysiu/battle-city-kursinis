@@ -1,5 +1,6 @@
 package Screens;
 
+import GameObjects.Tanks.Bullet;
 import GameObjects.Tanks.EnemyTank;
 import GameObjects.Tanks.PlayerTank;
 import GameObjects.Walls.*;
@@ -17,54 +18,33 @@ public class BattleGround extends JPanel implements ActionListener {
     CollisionService collisionService = new CollisionService();
 
     private PlayerTank tank;
-    private ArrayList<EnemyTank> enemy;
-    private final ArrayList<Tiles> tiles = new ArrayList<>();
+    private ArrayList<EnemyTank> enemy = new ArrayList<>();
+    private ArrayList<Bullet> bullets = new ArrayList<>();
+    private ArrayList<Tiles> tiles = new ArrayList<>();
     private Window window;
     private int level;
-
     private Timer timer;
     private final int DELAY = 10;
 
     public BattleGround(Window window) {
-        this.window = window;
-
-        initializeBattleground();
+        initializeBattleground(window);
     }
 
-    public void initializeBattleground() {
+    private void initializeBattleground(Window window) {
         setBackground(Color.BLACK);
-
         timer = new Timer(DELAY, this);
         timer.start();
-
         addKeyListener(new TAdapter());
         setFocusable(true);
-
-        level = 1;
-        tank = new PlayerTank(224, 576);
-
-        initializeTiles();
-
-        battlegroundService.loadObjects(tank, enemy, tiles);
-        collisionService.loadObjects(tiles);
+        loadObjects(1, 224, 575, window);
     }
 
-    public void initializeTiles() {
-        int[][] newLevel = LevelService.getLevel(level);
-        int type;
-
-        for (int i = 0; i < newLevel.length; i++) {
-            for (int j = 0; j < newLevel[0].length; j++) {
-                type = newLevel[i][j];
-                TileType tileType = TileType.getTypeFromValue(type);
-
-                switch (tileType) {
-                    case WALL -> tiles.add(new Wall(j * 32, i * 32));
-                    case BRICK -> tiles.add(new Brick(j * 32, i * 32));
-                    case BASE -> tiles.add(new Base(j * 32, i * 32));
-                }
-            }
-        }
+    private void loadObjects(int level, int tankX, int tankY, Window window) {
+        this.window = window;
+        this.level = level;
+        this.tiles = battlegroundService.initializeTiles(level);
+        this.tank = battlegroundService.initializePlayerTank(tankX, tankY);
+        collisionService.loadObjects(this.tiles);
     }
 
     @Override
@@ -80,14 +60,21 @@ public class BattleGround extends JPanel implements ActionListener {
         repaint();
     }
 
-    public void update() {
-        battlegroundService.updatePlayerTank();
+    private void update() {
+        battlegroundService.updatePlayerTank(tank);
+        battlegroundService.updatePlayerTankBullets(tank);
     }
 
     private void drawObjects(Graphics graphics) {
+
         for (Tiles tile : tiles) {
             graphics.drawImage(tile.getImage(), tile.getX(), tile.getY(), this);
         }
+
+        for (Bullet bullet : tank.getBullets()) {
+            graphics.drawImage(bullet.getImage(), bullet.getX(), bullet.getY(), this);
+        }
+
         graphics.drawImage(tank.getImage(), tank.getX(), tank.getY(), this);
     }
 
