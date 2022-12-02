@@ -5,46 +5,34 @@ import Services.CollisionService;
 
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.List;
 
 public class PlayerTank extends Sprite {
 
-    private int health = 3;
+    private int health;
 
-    private int lastDir = 3;
+    private int direction;
 
-    private int speed = 10;
+    private int speed;
     private int dirX;
     private int dirY;
 
-    private ArrayList<Bullet> bullets = new ArrayList<>();
+    private List<Bullet> bullets = new ArrayList<>();
 
     public PlayerTank(int x, int y) {
         super(x, y);
         loadImage("src/Sprites/player_tank.png");
         getImageDimensions();
+        this.health = 1;
+        this.direction = 3;
+        this.speed = 1;
     }
 
     public void damageTank(int damage) {
-        if (!(this.health - damage <= 0)) {
-            this.health -= damage;
-        }
+        this.health -= damage;
     }
 
     public void move() {
-
-        if (x < 32) {
-            x = 32;
-        }
-        if (x > 576) {
-            x = 576;
-        }
-        if (y < 32) {
-            y = 32;
-        }
-        if (y > 576) {
-            y = 576;
-        }
-
         if (!CollisionService.checkPlayerTankWallCollision(this)) {
             x += dirX;
             y += dirY;
@@ -53,14 +41,15 @@ public class PlayerTank extends Sprite {
 
     public void fire() {
         Bullet bullet;
-        switch (this.lastDir) {
+
+        switch (this.direction) {
             case 1, 2 -> {
-                bullet = new Bullet(true, this.lastDir, x, y + 12);
+                bullet = new Bullet(true, this.direction, x, y + 12);
                 bullets.add(bullet);
             }
 
             case 3, 4 -> {
-                bullet = new Bullet(true, this.lastDir, x + 12, y);
+                bullet = new Bullet(true, this.direction, x + 12, y);
                 bullets.add(bullet);
             }
         }
@@ -70,23 +59,23 @@ public class PlayerTank extends Sprite {
         int key = event.getKeyCode();
         if (key == KeyEvent.VK_UP) {
             dirX = 0;
-            dirY = -1;
-            lastDir = 4;
+            dirY = -1 * speed;
+            direction = 4;
         }
         if (key == KeyEvent.VK_DOWN) {
             dirX = 0;
-            dirY = 1;
-            lastDir = 3;
+            dirY = 1 * speed;
+            direction = 3;
         }
         if (key == KeyEvent.VK_RIGHT) {
-            dirX = 1;
+            dirX = 1 * speed;
             dirY = 0;
-            lastDir = 1;
+            direction = 1;
         }
         if (key == KeyEvent.VK_LEFT) {
-            dirX = -1;
+            dirX = -1 * speed;
             dirY = 0;
-            lastDir = 2;
+            direction = 2;
         }
     }
 
@@ -104,7 +93,7 @@ public class PlayerTank extends Sprite {
         if (key == KeyEvent.VK_LEFT) {
             dirX = 0;
         }
-        if (key == KeyEvent.VK_SPACE && getBullets().size() < 3){
+        if (key == KeyEvent.VK_SPACE && getBullets().size() < 3) {
             fire();
         }
     }
@@ -121,7 +110,7 @@ public class PlayerTank extends Sprite {
         return dirY;
     }
 
-    public ArrayList<Bullet> getBullets() {
+    public List<Bullet> getBullets() {
         return bullets;
     }
 }

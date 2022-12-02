@@ -6,25 +6,27 @@ import GameObjects.Tanks.PlayerTank;
 import GameObjects.Walls.*;
 import Services.BattlegroundService;
 import Services.CollisionService;
-import Services.LevelService;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ArrayList;
+import java.util.List;
 
 public class BattleGround extends JPanel implements ActionListener {
     BattlegroundService battlegroundService = new BattlegroundService();
     CollisionService collisionService = new CollisionService();
 
     private PlayerTank tank;
-    private ArrayList<EnemyTank> enemy = new ArrayList<>();
-    private ArrayList<Bullet> bullets = new ArrayList<>();
-    private ArrayList<Tiles> tiles = new ArrayList<>();
+    private List<EnemyTank> enemy;
+    private List<Tiles> tiles;
     private Window window;
     private int level;
     private Timer timer;
     private final int DELAY = 10;
+
+    private Image gameover;
+
+    private boolean over;
 
     public BattleGround(Window window) {
         initializeBattleground(window);
@@ -42,9 +44,16 @@ public class BattleGround extends JPanel implements ActionListener {
     private void loadObjects(int level, int tankX, int tankY, Window window) {
         this.window = window;
         this.level = level;
+
         this.tiles = battlegroundService.initializeTiles(level);
-        this.tank = battlegroundService.initializePlayerTank(tankX, tankY);
         collisionService.loadObjects(this.tiles);
+
+        this.tank = battlegroundService.initializePlayerTank(tankX, tankY);
+        this.enemy = battlegroundService.initializeEnemyTank();
+
+        ImageIcon icon = new ImageIcon("src/Sprites/game_over.png");
+        this.gameover = icon.getImage();
+        this.over = false;
     }
 
     @Override
@@ -61,8 +70,25 @@ public class BattleGround extends JPanel implements ActionListener {
     }
 
     private void update() {
-        battlegroundService.updatePlayerTank(tank);
-        battlegroundService.updatePlayerTankBullets(tank);
+        if (!over) {
+            checkGameOver();
+
+            battlegroundService.updatePlayerTank(tank);
+            battlegroundService.updatePlayerTankBullets(tank);
+            battlegroundService.updateEnemyTanks(enemy);
+            battlegroundService.updateEnemyTankBullets(enemy);
+
+            updateCollisions();
+        }
+
+        if (enemy.isEmpty()){
+            this.over = true;
+        }
+    }
+
+    private void updateCollisions() {
+        CollisionService.checkPlayerBulletHit(enemy, tank);
+        CollisionService.checkEnemyBulletHit(enemy, tank);
     }
 
     private void drawObjects(Graphics graphics) {
@@ -75,7 +101,25 @@ public class BattleGround extends JPanel implements ActionListener {
             graphics.drawImage(bullet.getImage(), bullet.getX(), bullet.getY(), this);
         }
 
+        for (EnemyTank enemyTank : enemy) {
+            graphics.drawImage(enemyTank.getImage(), enemyTank.getX(), enemyTank.getY(), this);
+
+            for (Bullet bullet : enemyTank.getBullets()) {
+                graphics.drawImage(bullet.getImage(), bullet.getX(), bullet.getY(), this);
+            }
+        }
+
         graphics.drawImage(tank.getImage(), tank.getX(), tank.getY(), this);
+
+        if (over) {
+            graphics.drawImage(gameover, 216, 240, this);
+        }
+    }
+
+    private void checkGameOver() {
+        if (tank.getHealth() <= 0 || CollisionService.checkBulletBaseCollision(enemy)) {
+            this.over = true;
+        }
     }
 
     private class TAdapter extends KeyAdapter {

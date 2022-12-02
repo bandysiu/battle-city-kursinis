@@ -7,15 +7,6 @@ public class Window extends JFrame {
 
     private JPanel window;
 
-    public static void main(String[] args) {
-        EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new Window().setVisible(true);
-            }
-        });
-    }
-
     public JPanel getWindow() {
         return window;
     }

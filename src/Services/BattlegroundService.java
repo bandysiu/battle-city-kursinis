@@ -1,51 +1,103 @@
 package Services;
 
 import GameObjects.Tanks.Bullet;
+import GameObjects.Tanks.EnemyTank;
 import GameObjects.Tanks.PlayerTank;
 import GameObjects.Walls.*;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class BattlegroundService {
 
-    public PlayerTank initializePlayerTank(int x, int y){
+    public PlayerTank initializePlayerTank(int x, int y) {
         return new PlayerTank(x, y);
     }
 
-    public ArrayList<Tiles> initializeTiles(int level) {
-        ArrayList<Tiles> tiles = new ArrayList<>();
-        int[][] newLevel = LevelService.getLevelTiles(level);
-        int temp;
+    public List<EnemyTank> initializeEnemyTank() {
+        List<EnemyTank> enemyTanks = new ArrayList<>();
+        Random random = new Random();
+        while (enemyTanks.size() < 5) {
+            int randomX = random.nextInt(576) + 32;
+            int randomY = random.nextInt(240) + 32;
 
-        for (int i = 0; i < newLevel.length; i++) {
-            for (int j = 0; j < newLevel[0].length; j++) {
-                temp = newLevel[i][j];
-                TileType tileType = TileType.getTypeFromValue(temp);
-
-                switch (tileType) {
-                    case WALL -> tiles.add(new Wall(j * 32, i * 32));
-                    case BRICK -> tiles.add(new Brick(j * 32, i * 32));
-                    case BASE -> tiles.add(new Base(j * 32, i * 32));
-                }
+            EnemyTank tank = new EnemyTank(randomX, randomY);
+            if (!CollisionService.checkEnemyTankWallCollision(tank)) {
+                enemyTanks.add(tank);
             }
         }
+        return enemyTanks;
+    }
+
+    public List<Tiles> initializeTiles(int level) {
+        List<Tiles> tiles = new ArrayList<>();
+        List<List<Integer>> matrixList = LevelService.readLevelFile(level);
+
+        int x = 0;
+        int y = 0;
+
+        for(List<Integer> list: matrixList){
+            for(Integer tile: list){
+                TileType tileType = TileType.getTypeFromValue(tile);
+
+                switch (tileType) {
+                    case WALL -> tiles.add(new Wall(x * 32, y * 32));
+                    case BRICK -> tiles.add(new Brick(x * 32, y * 32));
+                    case BASE -> tiles.add(new Base(x * 32, y * 32));
+                }
+
+                x++;
+            }
+            x = 0;
+            y++;
+        }
+
         return tiles;
     }
 
     public void updatePlayerTank(PlayerTank tank) {
         tank.move();
+
+        if (tank.getHealth() < 0) {
+            tank.setVisible(false);
+        }
     }
 
     public void updatePlayerTankBullets(PlayerTank tank) {
-        ArrayList<Bullet> tankBullets = tank.getBullets();
+        List<Bullet> tankBullets = tank.getBullets();
 
-        for(Bullet bullet: tankBullets){
-            if(bullet.isVisible()){
+        for (Bullet bullet : tankBullets) {
+            if (bullet.isVisible()) {
                 bullet.move();
-                CollisionService.checkPlayerBulletWallCollision(tank);
+                CollisionService.checkBulletWallCollision(bullet);
             }
         }
 
         tankBullets.removeIf(bullet -> !bullet.isVisible());
+    }
+
+    public void updateEnemyTanks(List<EnemyTank> tanks) {
+
+        for (EnemyTank tank : tanks) {
+            tank.tankAI();
+        }
+
+        tanks.removeIf(tank -> !tank.isVisible());
+    }
+
+    public void updateEnemyTankBullets(List<EnemyTank> tanks) {
+        for (EnemyTank tank : tanks) {
+            List<Bullet> tankBullets = tank.getBullets();
+
+            for (Bullet bullet : tankBullets) {
+                if (bullet.isVisible()) {
+                    bullet.move();
+                    CollisionService.checkBulletWallCollision(bullet);
+                }
+            }
+
+            tankBullets.removeIf(bullet -> !bullet.isVisible());
+        }
     }
 }

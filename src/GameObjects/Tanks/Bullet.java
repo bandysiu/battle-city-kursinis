@@ -22,12 +22,9 @@ public class Bullet extends Sprite {
             case 3 -> y += 2;
             case 4 -> y -= 2;
         }
+    }
 
-        if (x < 32 ||
-                x > 600 ||
-                y < 32 ||
-                y > 600) {
-            this.visible = false;
-        }
+    public boolean isPlayerBullet() {
+        return playerBullet;
     }
 }
