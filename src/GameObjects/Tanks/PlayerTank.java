@@ -1,5 +1,6 @@
 package GameObjects.Tanks;
 
+import GameObjects.Observer;
 import GameObjects.Sprite;
 import Services.CollisionService;
 
@@ -8,15 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PlayerTank extends Sprite {
-
-    private int health;
-
-    private int direction;
-
-    private int speed;
-    private int dirX;
-    private int dirY;
-
     private List<Bullet> bullets = new ArrayList<>();
 
     public PlayerTank(int x, int y) {
@@ -33,7 +25,7 @@ public class PlayerTank extends Sprite {
     }
 
     public void move() {
-        if (!CollisionService.checkPlayerTankWallCollision(this)) {
+        if (!CollisionService.checkPlayerTankWallCollision()) {
             x += dirX;
             y += dirY;
         }
@@ -108,6 +100,20 @@ public class PlayerTank extends Sprite {
 
     public int getDirY() {
         return dirY;
+    }
+
+    @Override
+    public void tankAI() {
+    }
+
+    @Override
+    public void notifyObservers() {
+
+    }
+
+    @Override
+    public void addObserver(Observer observer) {
+
     }
 
     public List<Bullet> getBullets() {

@@ -1,5 +1,6 @@
 package Services;
 
+import GameObjects.Sprite;
 import GameObjects.Tanks.Bullet;
 import GameObjects.Tanks.EnemyTank;
 import GameObjects.Tanks.PlayerTank;
@@ -16,7 +17,9 @@ public class CollisionService {
         CollisionService.tiles = tiles;
     }
 
-    public static boolean checkPlayerTankWallCollision(PlayerTank tank) {
+    public static boolean checkPlayerTankWallCollision() {
+
+        PlayerTank tank = PlayerSingleton.getInstance();
 
         Rectangle tankRectangle = new Rectangle(tank.getX() + tank.getDirX(), tank.getY() + tank.getDirY(), 32, 32);
         for (Tiles tile : tiles) {
@@ -46,8 +49,8 @@ public class CollisionService {
         }
     }
 
-    public static boolean checkBulletBaseCollision(List<EnemyTank> enemyTanks){
-        for(EnemyTank enemyTank: enemyTanks){
+    public static boolean checkBulletBaseCollision(List<Sprite> enemyTanks){
+        for(Sprite enemyTank: enemyTanks){
             List<Bullet> bullets = enemyTank.getBullets();
             for(Bullet bullet: bullets){
                 for (Tiles tile : tiles) {
@@ -62,24 +65,26 @@ public class CollisionService {
         }
         return false;
     }
-    public static void checkPlayerBulletHit(List<EnemyTank> enemyTanks, PlayerTank player) {
+    public static void checkPlayerBulletHit(List<Sprite> enemyTanks) {
+        PlayerTank player = PlayerSingleton.getInstance();
         List<Bullet> bullets = player.getBullets();
 
-        for (EnemyTank tank : enemyTanks) {
+        for (Sprite tank : enemyTanks) {
             Rectangle tankRectangle = new Rectangle(tank.getX() + tank.getDirX(), tank.getY() + tank.getDirY(), 32, 32);
             for (Bullet bullet : bullets) {
                 if (tankRectangle.intersects(bullet.getBounds())) {
                     tank.setVisible(false);
-                    bullet.setVisible(false);
+                    tank.notifyObservers();
                 }
             }
         }
     }
 
-    public static void checkEnemyBulletHit(List<EnemyTank> enemyTanks, PlayerTank player) {
+    public static void checkEnemyBulletHit(List<Sprite> enemyTanks) {
+        PlayerTank player = PlayerSingleton.getInstance();
         Rectangle tankRectangle = new Rectangle(player.getX() + player.getDirX(), player.getY() + player.getDirY(), 32, 32);
 
-        for (EnemyTank tank : enemyTanks) {
+        for (Sprite tank : enemyTanks) {
             List<Bullet> bullets = tank.getBullets();
             {
                 for (Bullet bullet : bullets) {

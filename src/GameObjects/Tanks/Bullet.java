@@ -1,6 +1,9 @@
 package GameObjects.Tanks;
 
+import GameObjects.Observer;
 import GameObjects.Sprite;
+
+import java.util.List;
 
 public class Bullet extends Sprite {
 
@@ -26,5 +29,35 @@ public class Bullet extends Sprite {
 
     public boolean isPlayerBullet() {
         return playerBullet;
+    }
+
+    @Override
+    public List<Bullet> getBullets() {
+        return null;
+    }
+
+    @Override
+    public int getDirX() {
+        return 0;
+    }
+
+    @Override
+    public int getDirY() {
+        return 0;
+    }
+
+    @Override
+    public void tankAI() {
+
+    }
+
+    @Override
+    public void notifyObservers() {
+
+    }
+
+    @Override
+    public void addObserver(Observer observer) {
+
     }
 }

@@ -1,11 +1,12 @@
 package Screens;
 
+import GameObjects.Sprite;
 import GameObjects.Tanks.Bullet;
-import GameObjects.Tanks.EnemyTank;
 import GameObjects.Tanks.PlayerTank;
 import GameObjects.Walls.*;
 import Services.BattlegroundService;
 import Services.CollisionService;
+import Services.PlayerSingleton;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,9 +16,7 @@ import java.util.List;
 public class BattleGround extends JPanel implements ActionListener {
     BattlegroundService battlegroundService = new BattlegroundService();
     CollisionService collisionService = new CollisionService();
-
-    private PlayerTank tank;
-    private List<EnemyTank> enemy;
+    private List<Sprite> enemy;
     private List<Tiles> tiles;
     private Window window;
     private int level;
@@ -38,17 +37,16 @@ public class BattleGround extends JPanel implements ActionListener {
         timer.start();
         addKeyListener(new TAdapter());
         setFocusable(true);
-        loadObjects(1, 224, 575, window);
+        loadObjects(1, window);
     }
 
-    private void loadObjects(int level, int tankX, int tankY, Window window) {
+    private void loadObjects(int level, Window window) {
         this.window = window;
         this.level = level;
 
         this.tiles = battlegroundService.initializeTiles(level);
         collisionService.loadObjects(this.tiles);
 
-        this.tank = battlegroundService.initializePlayerTank(tankX, tankY);
         this.enemy = battlegroundService.initializeEnemyTank();
 
         ImageIcon icon = new ImageIcon("src/Sprites/game_over.png");
@@ -73,8 +71,8 @@ public class BattleGround extends JPanel implements ActionListener {
         if (!over) {
             checkGameOver();
 
-            battlegroundService.updatePlayerTank(tank);
-            battlegroundService.updatePlayerTankBullets(tank);
+            battlegroundService.updatePlayerTank();
+            battlegroundService.updatePlayerTankBullets();
             battlegroundService.updateEnemyTanks(enemy);
             battlegroundService.updateEnemyTankBullets(enemy);
 
@@ -87,8 +85,8 @@ public class BattleGround extends JPanel implements ActionListener {
     }
 
     private void updateCollisions() {
-        CollisionService.checkPlayerBulletHit(enemy, tank);
-        CollisionService.checkEnemyBulletHit(enemy, tank);
+        CollisionService.checkPlayerBulletHit(enemy);
+        CollisionService.checkEnemyBulletHit(enemy);
     }
 
     private void drawObjects(Graphics graphics) {
@@ -97,11 +95,13 @@ public class BattleGround extends JPanel implements ActionListener {
             graphics.drawImage(tile.getImage(), tile.getX(), tile.getY(), this);
         }
 
+        PlayerTank tank = PlayerSingleton.getInstance();
+
         for (Bullet bullet : tank.getBullets()) {
             graphics.drawImage(bullet.getImage(), bullet.getX(), bullet.getY(), this);
         }
 
-        for (EnemyTank enemyTank : enemy) {
+        for (Sprite enemyTank : enemy) {
             graphics.drawImage(enemyTank.getImage(), enemyTank.getX(), enemyTank.getY(), this);
 
             for (Bullet bullet : enemyTank.getBullets()) {
@@ -117,12 +117,16 @@ public class BattleGround extends JPanel implements ActionListener {
     }
 
     private void checkGameOver() {
+        PlayerTank tank = PlayerSingleton.getInstance();
+
         if (tank.getHealth() <= 0 || CollisionService.checkBulletBaseCollision(enemy)) {
             this.over = true;
         }
     }
 
     private class TAdapter extends KeyAdapter {
+
+        PlayerTank tank = PlayerSingleton.getInstance();
         @Override
         public void keyPressed(KeyEvent event) {
             tank.keyPressed(event);

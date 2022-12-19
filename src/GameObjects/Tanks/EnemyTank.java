@@ -1,5 +1,6 @@
 package GameObjects.Tanks;
 
+import GameObjects.Observer;
 import GameObjects.Sprite;
 import Services.CollisionService;
 
@@ -8,15 +9,8 @@ import java.util.List;
 import java.util.Random;
 
 public class EnemyTank extends Sprite {
-    private int lastDir = 4;
-    private int dirX;
-    private int dirY;
-    private int direction;
-    private int directionTimer;
-    private int directionUpdate;
-    private int fireTimer;
-    private int fireUpdate;
-    private int speed;
+
+    private static List<Observer> observers = new ArrayList<>();
     private List<Bullet> bullets = new ArrayList<>();
 
     public EnemyTank(int x, int y) {
@@ -26,7 +20,7 @@ public class EnemyTank extends Sprite {
         this.directionTimer = 0;
         this.directionUpdate = 40;
         this.fireTimer = 0;
-        this.fireUpdate = 80;
+        this.fireUpdate = 50;
         this.direction = 4;
         this.speed = 2;
     }
@@ -68,6 +62,19 @@ public class EnemyTank extends Sprite {
         }
     }
 
+    @Override
+    public void notifyObservers() {
+        for (Observer o : observers) {
+            o.update();
+        }
+    }
+
+    @Override
+    public void addObserver(Observer observer){
+        observers.add(observer);
+    }
+
+    @Override
     public void tankAI(){
         if (this.directionUpdate <= this.directionTimer){
             chooseRandomDirection();
@@ -92,6 +99,7 @@ public class EnemyTank extends Sprite {
             case 1, 2 -> {
                 bullet = new Bullet(false, this.direction, x, y + 12);
                 bullets.add(bullet);
+
             }
             case 3, 4 -> {
                 bullet = new Bullet(false, this.direction, x + 12, y);
@@ -100,14 +108,17 @@ public class EnemyTank extends Sprite {
         }
     }
 
+    @Override
     public List<Bullet> getBullets() {
         return bullets;
     }
 
+    @Override
     public int getDirX() {
         return dirX;
     }
 
+    @Override
     public int getDirY() {
         return dirY;
     }

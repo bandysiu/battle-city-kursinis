@@ -1,5 +1,7 @@
 package Services;
 
+import GameObjects.EnemyTankObserver;
+import GameObjects.Sprite;
 import GameObjects.Tanks.Bullet;
 import GameObjects.Tanks.EnemyTank;
 import GameObjects.Tanks.PlayerTank;
@@ -10,21 +12,18 @@ import java.util.List;
 import java.util.Random;
 
 public class BattlegroundService {
-
-    public PlayerTank initializePlayerTank(int x, int y) {
-        return new PlayerTank(x, y);
-    }
-
-    public List<EnemyTank> initializeEnemyTank() {
-        List<EnemyTank> enemyTanks = new ArrayList<>();
+    public List<Sprite> initializeEnemyTank() {
+        List<Sprite> enemyTanks = new ArrayList<>();
         Random random = new Random();
         while (enemyTanks.size() < 5) {
             int randomX = random.nextInt(576) + 32;
             int randomY = random.nextInt(240) + 32;
 
-            EnemyTank tank = new EnemyTank(randomX, randomY);
-            if (!CollisionService.checkEnemyTankWallCollision(tank)) {
+            Sprite tank = new EnemyTank(randomX, randomY);
+
+            if (!CollisionService.checkEnemyTankWallCollision((EnemyTank) tank)) {
                 enemyTanks.add(tank);
+                new EnemyTankObserver(tank);
             }
         }
         return enemyTanks;
@@ -56,7 +55,9 @@ public class BattlegroundService {
         return tiles;
     }
 
-    public void updatePlayerTank(PlayerTank tank) {
+    public void updatePlayerTank() {
+        PlayerTank tank = PlayerSingleton.getInstance();
+
         tank.move();
 
         if (tank.getHealth() < 0) {
@@ -64,7 +65,9 @@ public class BattlegroundService {
         }
     }
 
-    public void updatePlayerTankBullets(PlayerTank tank) {
+    public void updatePlayerTankBullets() {
+        PlayerTank tank = PlayerSingleton.getInstance();
+
         List<Bullet> tankBullets = tank.getBullets();
 
         for (Bullet bullet : tankBullets) {
@@ -77,17 +80,17 @@ public class BattlegroundService {
         tankBullets.removeIf(bullet -> !bullet.isVisible());
     }
 
-    public void updateEnemyTanks(List<EnemyTank> tanks) {
+    public void updateEnemyTanks(List<Sprite> tanks) {
 
-        for (EnemyTank tank : tanks) {
+        for (Sprite tank : tanks) {
             tank.tankAI();
         }
 
         tanks.removeIf(tank -> !tank.isVisible());
     }
 
-    public void updateEnemyTankBullets(List<EnemyTank> tanks) {
-        for (EnemyTank tank : tanks) {
+    public void updateEnemyTankBullets(List<Sprite> tanks) {
+        for (Sprite tank : tanks) {
             List<Bullet> tankBullets = tank.getBullets();
 
             for (Bullet bullet : tankBullets) {
